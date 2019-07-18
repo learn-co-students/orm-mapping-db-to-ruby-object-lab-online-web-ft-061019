@@ -31,7 +31,53 @@ class Student
     self.new_from_db(student_found)
   end
   
+  def self.all_students_in_grade_9
+    sql_9th = <<-SQL
+      SELECT * FROM students
+      WHERE students.grade = 9;
+    SQL
+
+    DB[:conn].execute(sql_9th)
+  end
+
+  def self.students_below_12th_grade
+    sql_12th_below = <<-SQL
+      SELECT * FROM students
+      WHERE students.grade < 12;
+    SQL
+
+    DB[:conn].execute(sql_12th_below).map do |student_raw|
+      self.new_from_db(student_raw)
+    end
+  end
+
   
+  def self.first_X_students_in_grade_10(limit_of_students)
+    sql_students = <<-SQL
+      SELECT * FROM students
+      WHERE students.grade = 10
+      LIMIT ?;
+    SQL
+
+    DB[:conn].execute(sql_students, limit_of_students).map do |student_raw|
+      self.new_from_db(student_raw)
+    end
+  end
+
+  def self.first_student_in_grade_10
+    first_student = self.first_X_students_in_grade_10(1).first
+  end
+
+  def self.all_students_in_grade_X(grade)
+    sql_all_x = <<-SQL
+      SELECT * FROM students
+      WHERE students.grade = ?;
+    SQL
+
+    students = DB[:conn].execute(sql_all_x, grade).map do |student_raw|
+      self.new_from_db(student_raw)
+    end
+  end
 
   def save
     sql = <<-SQL
